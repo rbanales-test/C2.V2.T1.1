@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Harmonic Stacker - Topic 1.1</title>
+    <style>
+        /* Coursera Brand Identity */
+        :root {
+            --coursera-blue: #0056D2;
+            --coursera-blue-hover: #00419e;
+            --text-main: #1F1F1F;
+            --text-secondary: #636363;
+            --bg-page: #F5F7F8;
+            --bg-panel: #FFFFFF;
+            --border-color: #E2E2E2;
+            --success-green: #00885A;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.5;
+        }
+
+        .screen {
+            background-color: var(--bg-panel);
+            padding: 40px;
+            border-radius: 8px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        #app-screen {
+            display: none;
+        }
+
+        h1, h2 {
+            margin-top: 0;
+            color: var(--text-main);
+        }
+
+        p {
+            color: var(--text-secondary);
+        }
+
+        .tutorial-content {
+            background-color: #EBF3FF;
+            padding: 20px;
+            border-left: 4px solid var(--coursera-blue);
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            background-color: var(--text-main);
+            border-radius: 4px;
+            margin: 20px 0;
+            width: 100%;
+            height: 200px;
+        }
+
+        button {
+            background-color: var(--coursera-blue);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--coursera-blue-hover);
+        }
+
+        button:focus, input[type="range"]:focus {
+            outline: 3px solid #82B1FF;
+            outline-offset: 2px;
+        }
+
+        .control-group {
+            margin: 20px 0;
+            text-align: left;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: #FAFAFA;
+            transition: opacity 0.3s;
+        }
+
+        .control-group.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .mission-box {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #F9F9F9;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .mission-title {
+            font-weight: bold;
+            color: var(--coursera-blue);
+            margin-bottom: 10px;
+        }
+
+        .success-text {
+            color: var(--success-green);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tutorial / Start Screen -->
+    <div id="tutorial-screen" class="screen" role="dialog" aria-labelledby="tutorial-title" aria-describedby="tutorial-desc">
+        <h1 id="tutorial-title">Harmonic Stacker Simulator</h1>
+        
+        <div class="tutorial-content" id="tutorial-desc">
+            <p><strong>Objective:</strong> Experiment directly with fundamental frequencies, harmonic overtones, and inharmonic overtones to observe how changing harmonic ratios alters perceived timbre.</p>
+            <p><strong>Instructions:</strong></p>
+            <ol>
+                <li>Click <strong>Start Simulator</strong> and turn on the audio.</li>
+                <li>Complete the <strong>5 sequential missions</strong> to unlock the controls.</li>
+                <li>Use the <strong>Tab</strong> key or your mouse to adjust the sliders.</li>
+                <li>Notice how odd harmonics sound like a clarinet, adding even harmonics creates a saxophone tone, and inharmonic overtones produce a bell-like sound.</li>
+            </ol>
+        </div>
+        <button id="btn-start" tabindex="0">Start Simulator</button>
+    </div>
+
+    <!-- Main Simulator Screen -->
+    <div id="app-screen" class="screen" role="main" aria-hidden="true">
+        <h2>Acoustic Spectrum Visualizer</h2>
+        <p>Observe how partials create timbre (the color of the sound).</p>
+        
+        <canvas id="oscilloscope" width="600" height="200" aria-label="Real-time waveform visualization" role="img"></canvas>
+        
+        <div class="controls">
+            <button id="btn-play" aria-pressed="false">Play Audio</button>
+            
+            <div id="ctrl-fundamental" class="control-group disabled">
+                <label for="fundamental">1. Fundamental (Pure Sine): <span id="val-fundamental">0</span>%</label>
+                <input type="range" id="fundamental" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-fund">
+                <small id="desc-fund" style="display:block; color:var(--text-secondary);">The lowest harmonic; the pitch you hear.</small>
+            </div>
+
+            <div id="ctrl-odd" class="control-group disabled">
+                <label for="odd-harmonics">2. Odd Harmonics (Clarinet Tone): <span id="val-odd">0</span>%</label>
+                <input type="range" id="odd-harmonics" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-odd">
+                <small id="desc-odd" style="display:block; color:var(--text-secondary);">Odd multiples (3x, 5x, 7x). Creates a hollow, reedy sound.</small>
+            </div>
+            
+            <div id="ctrl-even" class="control-group disabled">
+                <label for="even-harmonics">3. Even Harmonics (Saxophone Tone): <span id="val-even">0</span>%</label>
+                <input type="range" id="even-harmonics" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-even">
+                <small id="desc-even" style="display:block; color:var(--text-secondary);">Even multiples (2x, 4x, 6x). Fills out the spectrum.</small>
+            </div>
+
+            <div id="ctrl-inharmonic" class="control-group disabled">
+                <label for="inharmonic">4. Inharmonic Overtones (Bell/Gong): <span id="val-inharmonic">0</span>%</label>
+                <input type="range" id="inharmonic" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-inhar">
+                <small id="desc-inhar" style="display:block; color:var(--text-secondary);">Frequencies that do not fit the whole-number pattern.</small>
+            </div>
+        </div>
+        
+        <div class="mission-box" aria-live="polite">
+            <div id="mission-title" class="mission-title">Mission 1/5</div>
+            <div id="mission-status">Turn on the audio and raise the <strong>Fundamental</strong> slider above 50% to hear the pure pitch.</div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const tutorialScreen = document.getElementById('tutorial-screen');
+        const appScreen = document.getElementById('app-screen');
+        const btnStart = document.getElementById('btn-start');
+        const btnPlay = document.getElementById('btn-play');
+        
+        const fundamentalSlider = document.getElementById('fundamental');
+        const oddSlider = document.getElementById('odd-harmonics');
+        const evenSlider = document.getElementById('even-harmonics');
+        const inharmonicSlider = document.getElementById('inharmonic');
+        
+        const valFund = document.getElementById('val-fundamental');
+        const valOdd = document.getElementById('val-odd');
+        const valEven = document.getElementById('val-even');
+        const valInhar = document.getElementById('val-inharmonic');
+        
+        const ctrlFund = document.getElementById('ctrl-fundamental');
+        const ctrlOdd = document.getElementById('ctrl-odd');
+        const ctrlEven = document.getElementById('ctrl-even');
+        const ctrlInhar = document.getElementById('ctrl-inharmonic');
+
+        const canvas = document.getElementById('oscilloscope');
+        const ctx = canvas.getContext('2d');
+        const missionTitle = document.getElementById('mission-title');
+        const missionStatus = document.getElementById('mission-status');
+
+        // Audio Variables
+        let audioCtx, masterGain, mainOscillator, inharmonicOscillator, inharmonicGain;
+        let isPlaying = false;
+        let currentMission = 1;
+        
+        // Transitions
+        btnStart.addEventListener('click', () => {
+            tutorialScreen.style.display = 'none';
+            tutorialScreen.setAttribute('aria-hidden', 'true');
+            appScreen.style.display = 'block';
+            appScreen.removeAttribute('aria-hidden');
+            btnPlay.focus();
+        });
+
+        // Web Audio API Setup
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.5;
+            masterGain.connect(audioCtx.destination);
+        }
+
+        function createCustomWave() {
+            const fundLevel = parseInt(fundamentalSlider.value) / 100;
+            const oddLevel = parseInt(oddSlider.value) / 100;
+            const evenLevel = parseInt(evenSlider.value) / 100;
+            
+            const numHarmonics = 15;
+            const real = new Float32Array(numHarmonics);
+            const imag = new Float32Array(numHarmonics);
+            
+            real[1] = fundLevel; // Fundamental
+            
+            for (let i = 2; i < numHarmonics; i++) {
+                if (i % 2 !== 0) {
+                    real[i] = (1 / i) * oddLevel; // Odd
+                } else {
+                    real[i] = (1 / i) * evenLevel; // Even
+                }
+            }
+            return audioCtx.createPeriodicWave(real, imag);
+        }
+
+        function updateWaveform() {
+            valFund.textContent = fundamentalSlider.value;
+            valOdd.textContent = oddSlider.value;
+            valEven.textContent = evenSlider.value;
+            valInhar.textContent = inharmonicSlider.value;
+            
+            if (isPlaying && mainOscillator) {
+                mainOscillator.setPeriodicWave(createCustomWave());
+                // Inharmonic is handled by a separate oscillator for non-integer ratios (e.g., 2.76x)
+                inharmonicGain.gain.setTargetAtTime(parseInt(inharmonicSlider.value) / 100 * 0.3, audioCtx.currentTime, 0.05);
+            }
+            checkMissions();
+            drawWaveform();
+        }
+
+        function toggleAudio() {
+            if (!audioCtx) initAudio();
+            
+            if (isPlaying) {
+                masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                setTimeout(() => { 
+                    mainOscillator.stop(); 
+                    inharmonicOscillator.stop();
+                    mainOscillator.disconnect(); 
+                    inharmonicOscillator.disconnect();
+                }, 100);
+                btnPlay.textContent = "Play Audio";
+                btnPlay.setAttribute('aria-pressed', 'false');
+            } else {
+                // Main Harmonic Oscillator
+                mainOscillator = audioCtx.createOscillator();
+                mainOscillator.frequency.value = 220; // A3
+                mainOscillator.setPeriodicWave(createCustomWave());
+                mainOscillator.connect(masterGain);
+                
+                // Inharmonic Oscillator (Bell-like overtones, non-integer)
+                inharmonicOscillator = audioCtx.createOscillator();
+                inharmonicOscillator.type = 'square';
+                inharmonicOscillator.frequency.value = 220 * 2.76; 
+                inharmonicGain = audioCtx.createGain();
+                inharmonicGain.gain.value = parseInt(inharmonicSlider.value) / 100 * 0.3;
+                inharmonicOscillator.connect(inharmonicGain);
+                inharmonicGain.connect(masterGain);
+
+                masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                masterGain.gain.setTargetAtTime(0.5, audioCtx.currentTime, 0.05);
+                mainOscillator.start();
+                inharmonicOscillator.start();
+                
+                btnPlay.textContent = "Pause Audio";
+                btnPlay.setAttribute('aria-pressed', 'true');
+                
+                // Unlock first control when audio starts
+                if(currentMission === 1) ctrlFund.classList.remove('disabled');
+            }
+            isPlaying = !isPlaying;
+            checkMissions();
+            drawWaveform();
+        }
+
+        function drawWaveform() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = "#82B1FF";
+            ctx.lineWidth = 3;
+            
+            const fundLevel = parseInt(fundamentalSlider.value) / 100;
+            const oddLevel = parseInt(oddSlider.value) / 100;
+            const evenLevel = parseInt(evenSlider.value) / 100;
+            const inharLevel = parseInt(inharmonicSlider.value) / 100;
+            
+            for (let x = 0; x < canvas.width; x++) {
+                let t = (x / canvas.width) * Math.PI * 4; // 2 cycles
+                let y = fundLevel * Math.sin(t); 
+                
+                for (let i = 2; i < 15; i++) {
+                    if (i % 2 !== 0) y += (1/i) * oddLevel * Math.sin(i * t);
+                    else y += (1/i) * evenLevel * Math.sin(i * t);
+                }
+                
+                // Visual fake for inharmonic high-frequency noise
+                y += inharLevel * 0.3 * Math.sin(t * 12.5); 
+                
+                const drawY = canvas.height/2 - (y * 50);
+                if (x === 0) ctx.moveTo(x, drawY);
+                else ctx.lineTo(x, drawY);
+            }
+            ctx.stroke();
+        }
+
+        function checkMissions() {
+            if (!isPlaying) return;
+
+            const f = parseInt(fundamentalSlider.value);
+            const o = parseInt(oddSlider.value);
+            const e = parseInt(evenSlider.value);
+            const i = parseInt(inharmonicSlider.value);
+
+            if (currentMission === 1 && f > 50) {
+                currentMission = 2;
+                ctrlOdd.classList.remove('disabled');
+                missionTitle.textContent = "Mission 2/5";
+                missionStatus.innerHTML = "Great! Now raise the <strong>Odd Harmonics</strong> above 50% to hear the hollow tone of a clarinet.";
+            } 
+            else if (currentMission === 2 && o > 50) {
+                currentMission = 3;
+                ctrlEven.classList.remove('disabled');
+                missionTitle.textContent = "Mission 3/5";
+                missionStatus.innerHTML = "Hear that hollow sound? Now add <strong>Even Harmonics</strong> to fill the spectrum and simulate a saxophone.";
+            }
+            else if (currentMission === 3 && e > 50) {
+                currentMission = 4;
+                ctrlInhar.classList.remove('disabled');
+                missionTitle.textContent = "Mission 4/5";
+                missionStatus.innerHTML = "Perfect staircase! Now add <strong>Inharmonic Overtones</strong> to introduce a metallic, bell-like character.";
+            }
+            else if (currentMission === 4 && i > 50) {
+                currentMission = 5;
+                missionTitle.textContent = "Mission 5/5: Completed!";
+                missionTitle.classList.add('success-text');
+                missionStatus.innerHTML = "<strong>Congratulations!</strong> You have unlocked Free Exploration Mode. <br><br><em>Note: Do not close this window without analyzing how these variables affect the final timbre required for your Week 1 Assignment.</em>";
+            }
+        }
+
+        // Event Listeners
+        btnPlay.addEventListener('click', toggleAudio);
+        fundamentalSlider.addEventListener('input', updateWaveform);
+        oddSlider.addEventListener('input', updateWaveform);
+        evenSlider.addEventListener('input', updateWaveform);
+        inharmonicSlider.addEventListener('input', updateWaveform);
+        
+        // Initial Draw
+        drawWaveform();
+    </script>
+</body>
+</html>
