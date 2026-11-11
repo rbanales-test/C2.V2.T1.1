@@ -14,6 +14,7 @@
             --bg-panel: #FFFFFF;
             --border-color: #E2E2E2;
             --success-green: #00885A;
+            --danger-red: #D32F2F;
         }
 
         body {
@@ -43,7 +44,7 @@
             display: none;
         }
 
-        h1, h2 {
+        h1, h2, h3 {
             margin-top: 0;
             color: var(--text-main);
         }
@@ -52,11 +53,36 @@
             color: var(--text-secondary);
         }
 
+        /* Volume Warning Box */
+        .volume-warning {
+            background-color: #FFEBEE;
+            border-left: 4px solid var(--danger-red);
+            padding: 14px 18px;
+            border-radius: 0 4px 4px 0;
+            margin-bottom: 20px;
+        }
+
+        .volume-warning h3 {
+            color: var(--danger-red);
+            font-size: 15px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .volume-warning p {
+            color: #B71C1C;
+            font-size: 13.5px;
+            margin: 0;
+            line-height: 1.4;
+        }
+
         .tutorial-content {
             background-color: #EBF3FF;
             padding: 20px;
             border-left: 4px solid var(--coursera-blue);
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         canvas {
@@ -140,15 +166,22 @@
     <!-- Tutorial / Start Screen -->
     <div id="tutorial-screen" class="screen" role="dialog" aria-labelledby="tutorial-title" aria-describedby="tutorial-desc">
         <h1 id="tutorial-title">Harmonic Stacker Simulator</h1>
+
+        <!-- Universal Volume Warning -->
+        <div class="volume-warning" role="alert">
+            <h3>⚠️ Volume Warning / Cuidado con el Volumen</h3>
+            <p>This simulator synthesizes raw acoustic overtones and inharmonic frequencies that can produce sharp, high-pitched spikes. Please lower your headphone or system volume before starting.</p>
+        </div>
         
         <div class="tutorial-content" id="tutorial-desc">
-            <p><strong>Objective:</strong> Experiment directly with fundamental frequencies, harmonic overtones, and inharmonic overtones to observe how changing harmonic ratios alters perceived timbre.</p>
-            <p><strong>Instructions:</strong></p>
+            <p><strong>Objective:</strong> Experiment directly with fundamental frequencies, harmonic overtones, and inharmonic overtones on pitch <strong>B4 (494 Hz)</strong> to observe how changing harmonic ratios alters perceived timbre.</p>
+            <p><strong>Instructions & Accessibility:</strong></p>
             <ol>
-                <li>Click <strong>Start Simulator</strong> and turn on the audio.</li>
-                <li>Complete the <strong>5 sequential missions</strong> to unlock the controls.</li>
-                <li>Use the <strong>Tab</strong> key or your mouse to adjust the sliders.</li>
-                <li>Notice how odd harmonics sound like a clarinet, adding even harmonics creates a saxophone tone, and inharmonic overtones produce a bell-like sound.</li>
+                <li>Click <strong>Start Simulator</strong> to initialize the engine (integrated safety limiter active).</li>
+                <li>Press <kbd>Spacebar</kbd> or click <strong>Play Audio</strong> at any time to toggle the sound.</li>
+                <li>Use <kbd>Tab</kbd> to move between sliders and arrow keys (<kbd>&larr;</kbd> <kbd>&rarr;</kbd>) to adjust values.</li>
+                <li>Complete the <strong>5 sequential missions</strong> to unlock free exploration.</li>
+                <li>Notice how odd harmonics sound like a clarinet, adding even harmonics creates a saxophone body, and inharmonic overtones produce a bell-like tone.</li>
             </ol>
         </div>
         <button id="btn-start" tabindex="0">Start Simulator</button>
@@ -157,35 +190,35 @@
     <!-- Main Simulator Screen -->
     <div id="app-screen" class="screen" role="main" aria-hidden="true">
         <h2>Acoustic Spectrum Visualizer</h2>
-        <p>Observe how partials create timbre (the color of the sound).</p>
+        <p>Observe how partials build complex timbre on note B4 (494 Hz).</p>
         
         <canvas id="oscilloscope" width="600" height="200" aria-label="Real-time waveform visualization" role="img"></canvas>
         
         <div class="controls">
-            <button id="btn-play" aria-pressed="false">Play Audio</button>
+            <button id="btn-play" aria-pressed="false" tabindex="0">Play Audio (Spacebar)</button>
             
             <div id="ctrl-fundamental" class="control-group disabled">
-                <label for="fundamental">1. Fundamental (Pure Sine): <span id="val-fundamental">0</span>%</label>
+                <label for="fundamental">1. Fundamental (494 Hz Sine): <span id="val-fundamental">0</span>%</label>
                 <input type="range" id="fundamental" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-fund">
-                <small id="desc-fund" style="display:block; color:var(--text-secondary);">The lowest harmonic; the pitch you hear.</small>
+                <small id="desc-fund" style="display:block; color:var(--text-secondary);">The lowest harmonic (B4); establishes the pitch you hear.</small>
             </div>
 
             <div id="ctrl-odd" class="control-group disabled">
                 <label for="odd-harmonics">2. Odd Harmonics (Clarinet Tone): <span id="val-odd">0</span>%</label>
                 <input type="range" id="odd-harmonics" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-odd">
-                <small id="desc-odd" style="display:block; color:var(--text-secondary);">Odd multiples (3x, 5x, 7x). Creates a hollow, reedy sound.</small>
+                <small id="desc-odd" style="display:block; color:var(--text-secondary);">Odd multiples (3x = 1482 Hz, 5x = 2470 Hz). Produces a hollow, woody clarinet tone.</small>
             </div>
             
             <div id="ctrl-even" class="control-group disabled">
                 <label for="even-harmonics">3. Even Harmonics (Saxophone Tone): <span id="val-even">0</span>%</label>
                 <input type="range" id="even-harmonics" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-even">
-                <small id="desc-even" style="display:block; color:var(--text-secondary);">Even multiples (2x, 4x, 6x). Fills out the spectrum.</small>
+                <small id="desc-even" style="display:block; color:var(--text-secondary);">Even multiples (2x = 988 Hz, 4x = 1976 Hz, 6x = 2964 Hz). Completes the full saxophone body.</small>
             </div>
 
             <div id="ctrl-inharmonic" class="control-group disabled">
                 <label for="inharmonic">4. Inharmonic Overtones (Bell/Gong): <span id="val-inharmonic">0</span>%</label>
-                <input type="range" id="inharmonic" min="0" max="100" value="0" tabindex="0" aria-describedby="desc-inhar">
-                <small id="desc-inhar" style="display:block; color:var(--text-secondary);">Frequencies that do not fit the whole-number pattern.</small>
+                <input type="range" id="inharmonic" min="0" max="60" value="0" tabindex="0" aria-describedby="desc-inhar">
+                <small id="desc-inhar" style="display:block; color:var(--text-secondary);">Non-integer frequencies (~1363 Hz) creating a metallic, chime-like quality (capped at 60%).</small>
             </div>
         </div>
         
@@ -223,7 +256,8 @@
         const missionStatus = document.getElementById('mission-status');
 
         // Audio Variables
-        let audioCtx, masterGain, mainOscillator, inharmonicOscillator, inharmonicGain;
+        const BASE_NOTE_HZ = 494.0; // B4 note
+        let audioCtx, masterGain, safetyLimiter, mainOscillator, inharmonicOscillator, inharmonicGain;
         let isPlaying = false;
         let currentMission = 1;
         
@@ -238,10 +272,23 @@
 
         // Web Audio API Setup
         function initAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            masterGain = audioCtx.createGain();
-            masterGain.gain.value = 0.5;
-            masterGain.connect(audioCtx.destination);
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Hardware-level safety limiter
+                safetyLimiter = audioCtx.createDynamicsCompressor();
+                safetyLimiter.threshold.value = -8;
+                safetyLimiter.knee.value = 0;
+                safetyLimiter.ratio.value = 20;
+                safetyLimiter.attack.value = 0.001;
+                safetyLimiter.release.value = 0.1;
+
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0;
+
+                masterGain.connect(safetyLimiter);
+                safetyLimiter.connect(audioCtx.destination);
+            }
         }
 
         function createCustomWave() {
@@ -249,17 +296,19 @@
             const oddLevel = parseInt(oddSlider.value) / 100;
             const evenLevel = parseInt(evenSlider.value) / 100;
             
-            const numHarmonics = 15;
+            const numHarmonics = 16;
             const real = new Float32Array(numHarmonics);
             const imag = new Float32Array(numHarmonics);
             
-            real[1] = fundLevel; // Fundamental
+            // Balanced fundamental so overtones punch through clearly
+            real[1] = fundLevel * 0.75;
             
+            // Enhanced weighting (1.5 / i) to make clarinet vs saxophone differentiation instantly noticeable
             for (let i = 2; i < numHarmonics; i++) {
                 if (i % 2 !== 0) {
-                    real[i] = (1 / i) * oddLevel; // Odd
+                    real[i] = (1.5 / i) * oddLevel;
                 } else {
-                    real[i] = (1 / i) * evenLevel; // Even
+                    real[i] = (1.5 / i) * evenLevel;
                 }
             }
             return audioCtx.createPeriodicWave(real, imag);
@@ -271,56 +320,80 @@
             valEven.textContent = evenSlider.value;
             valInhar.textContent = inharmonicSlider.value;
             
-            if (isPlaying && mainOscillator) {
+            if (isPlaying && mainOscillator && audioCtx) {
                 mainOscillator.setPeriodicWave(createCustomWave());
-                // Inharmonic is handled by a separate oscillator for non-integer ratios (e.g., 2.76x)
-                inharmonicGain.gain.setTargetAtTime(parseInt(inharmonicSlider.value) / 100 * 0.3, audioCtx.currentTime, 0.05);
+                if (inharmonicGain) {
+                    inharmonicGain.gain.setTargetAtTime(
+                        (parseInt(inharmonicSlider.value) / 100) * 0.2, 
+                        audioCtx.currentTime, 
+                        0.05
+                    );
+                }
             }
             checkMissions();
             drawWaveform();
         }
 
         function toggleAudio() {
-            if (!audioCtx) initAudio();
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
             
+            const now = audioCtx.currentTime;
+
             if (isPlaying) {
-                masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-                setTimeout(() => { 
-                    mainOscillator.stop(); 
-                    inharmonicOscillator.stop();
-                    mainOscillator.disconnect(); 
-                    inharmonicOscillator.disconnect();
-                }, 100);
-                btnPlay.textContent = "Play Audio";
+                masterGain.gain.cancelScheduledValues(now);
+                masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+                masterGain.gain.linearRampToValueAtTime(0, now + 0.08);
+
+                setTimeout(() => {
+                    if (!isPlaying) {
+                        if (mainOscillator) {
+                            mainOscillator.stop();
+                            mainOscillator.disconnect();
+                            mainOscillator = null;
+                        }
+                        if (inharmonicOscillator) {
+                            inharmonicOscillator.stop();
+                            inharmonicOscillator.disconnect();
+                            inharmonicOscillator = null;
+                        }
+                    }
+                }, 90);
+
+                btnPlay.textContent = "Play Audio (Spacebar)";
                 btnPlay.setAttribute('aria-pressed', 'false');
+                isPlaying = false;
             } else {
-                // Main Harmonic Oscillator
                 mainOscillator = audioCtx.createOscillator();
-                mainOscillator.frequency.value = 220; // A3
+                mainOscillator.frequency.value = BASE_NOTE_HZ;
                 mainOscillator.setPeriodicWave(createCustomWave());
                 mainOscillator.connect(masterGain);
                 
-                // Inharmonic Oscillator (Bell-like overtones, non-integer)
+                // Inharmonic oscillator (bell-like frequency ratio ~2.76x)
                 inharmonicOscillator = audioCtx.createOscillator();
-                inharmonicOscillator.type = 'square';
-                inharmonicOscillator.frequency.value = 220 * 2.76; 
+                inharmonicOscillator.type = 'triangle';
+                inharmonicOscillator.frequency.value = BASE_NOTE_HZ * 2.76;
+                
                 inharmonicGain = audioCtx.createGain();
-                inharmonicGain.gain.value = parseInt(inharmonicSlider.value) / 100 * 0.3;
+                inharmonicGain.gain.value = (parseInt(inharmonicSlider.value) / 100) * 0.2;
                 inharmonicOscillator.connect(inharmonicGain);
                 inharmonicGain.connect(masterGain);
 
-                masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-                masterGain.gain.setTargetAtTime(0.5, audioCtx.currentTime, 0.05);
-                mainOscillator.start();
-                inharmonicOscillator.start();
+                masterGain.gain.cancelScheduledValues(now);
+                masterGain.gain.setValueAtTime(0, now);
+                masterGain.gain.linearRampToValueAtTime(0.45, now + 0.05);
+
+                mainOscillator.start(now);
+                inharmonicOscillator.start(now);
                 
-                btnPlay.textContent = "Pause Audio";
+                btnPlay.textContent = "Pause Audio (Spacebar)";
                 btnPlay.setAttribute('aria-pressed', 'true');
+                isPlaying = true;
                 
-                // Unlock first control when audio starts
-                if(currentMission === 1) ctrlFund.classList.remove('disabled');
+                if (currentMission === 1) ctrlFund.classList.remove('disabled');
             }
-            isPlaying = !isPlaying;
             checkMissions();
             drawWaveform();
         }
@@ -337,18 +410,20 @@
             const inharLevel = parseInt(inharmonicSlider.value) / 100;
             
             for (let x = 0; x < canvas.width; x++) {
-                let t = (x / canvas.width) * Math.PI * 4; // 2 cycles
-                let y = fundLevel * Math.sin(t); 
+                let t = (x / canvas.width) * Math.PI * 4;
+                let y = fundLevel * Math.sin(t) * 0.75; 
                 
-                for (let i = 2; i < 15; i++) {
-                    if (i % 2 !== 0) y += (1/i) * oddLevel * Math.sin(i * t);
-                    else y += (1/i) * evenLevel * Math.sin(i * t);
+                for (let i = 2; i < 16; i++) {
+                    if (i % 2 !== 0) {
+                        y += (1.5 / i) * oddLevel * Math.sin(i * t);
+                    } else {
+                        y += (1.5 / i) * evenLevel * Math.sin(i * t);
+                    }
                 }
                 
-                // Visual fake for inharmonic high-frequency noise
-                y += inharLevel * 0.3 * Math.sin(t * 12.5); 
+                y += inharLevel * 0.2 * Math.sin(t * 11.04); 
                 
-                const drawY = canvas.height/2 - (y * 50);
+                const drawY = (canvas.height / 2) - (y * 45);
                 if (x === 0) ctx.moveTo(x, drawY);
                 else ctx.lineTo(x, drawY);
             }
@@ -373,21 +448,38 @@
                 currentMission = 3;
                 ctrlEven.classList.remove('disabled');
                 missionTitle.textContent = "Mission 3/5";
-                missionStatus.innerHTML = "Hear that hollow sound? Now add <strong>Even Harmonics</strong> to fill the spectrum and simulate a saxophone.";
+                missionStatus.innerHTML = "Hear that hollow sound? Now add <strong>Even Harmonics</strong> above 50% to fill the spectrum and simulate a saxophone.";
             }
             else if (currentMission === 3 && e > 50) {
                 currentMission = 4;
                 ctrlInhar.classList.remove('disabled');
                 missionTitle.textContent = "Mission 4/5";
-                missionStatus.innerHTML = "Perfect staircase! Now add <strong>Inharmonic Overtones</strong> to introduce a metallic, bell-like character.";
+                missionStatus.innerHTML = "Perfect staircase! Now add <strong>Inharmonic Overtones</strong> (raise above 40%) to introduce a metallic, bell-like character.";
             }
-            else if (currentMission === 4 && i > 50) {
+            else if (currentMission === 4 && i >= 40) {
                 currentMission = 5;
                 missionTitle.textContent = "Mission 5/5: Completed!";
                 missionTitle.classList.add('success-text');
                 missionStatus.innerHTML = "<strong>Congratulations!</strong> You have unlocked Free Exploration Mode. <br><br><em>Note: Do not close this window without analyzing how these variables affect the final timbre required for your Week 1 Assignment.</em>";
             }
         }
+
+        // Global Keyboard Handler (WCAG compliance)
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault();
+                if (appScreen.style.display === 'block' && !e.repeat) {
+                    toggleAudio();
+                }
+            } else if (e.key === 'Enter') {
+                if (appScreen.style.display === 'block' && e.target !== btnStart && !e.repeat) {
+                    if (e.target.tagName !== 'BUTTON') {
+                        e.preventDefault();
+                        toggleAudio();
+                    }
+                }
+            }
+        });
 
         // Event Listeners
         btnPlay.addEventListener('click', toggleAudio);
